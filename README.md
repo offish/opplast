@@ -33,7 +33,7 @@ Upload(root_profile_directory: str, timeout=TIMEOUT, headless=True, debug=True) 
 
 `headless: bool` - whether or not you want to see the GUI. Default: `True`.
 
-`headless: bool` - whether or not you want to see the debug info. Default: `True`.
+`debug: bool` - whether or not you want to see the debug info. Default: `True`.
 
 
 ## Usage
