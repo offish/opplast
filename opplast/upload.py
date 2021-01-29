@@ -1,7 +1,6 @@
 from .constants import *
 from .logging import Log
 
-from inspect import getmembers, isfunction
 from pathlib import Path
 from time import sleep
 
@@ -12,7 +11,7 @@ class Upload:
     def __init__(
         self,
         root_profile_directory: str,
-        timeout: int = TIMEOUT,
+        timeout: int = 3,
         headless: bool = True,
         debug: bool = True,
     ) -> None:
@@ -27,35 +26,47 @@ class Upload:
         self.log.debug("Firefox is now running")
 
     def upload(self, meta: dict) -> (bool, str):
+        """Uploads a video to YouTube.
+
+        meta: {
+            "file": "path/to/video.mp4",
+            "title": "my title",
+            "description": "my description",
+            "thumbnail": "path/to/thumbnail.jpg"
+        }
+
+        Returns if the video was uploaded and the video id.
+        """
         video = meta.get("file")
         title = meta.get("title")
         description = meta.get("description")
         thumbnail = meta.get("thumbnail")
 
         if not video:
-            raise FileNotFoundError("Could not find 'file' in meta dictionary")
+            raise FileNotFoundError('Could not find "file" in meta')
 
         self.driver.get(YOUTUBE_UPLOAD_URL)
         sleep(self.timeout)
 
-        self.log.debug("Trying to upload video to YouTube...")
+        self.log.debug(f"Trying to upload {video} to YouTube...")
         path = str(Path.cwd() / video)
         self.driver.find_element_by_xpath(INPUT_FILE_VIDEO).send_keys(path)
         sleep(self.timeout)
 
-        self.log.debug(f"Trying to set {title} as title...")
-        title_field = self.driver.find_element_by_id(TEXTBOX)
-        title_field.click()
-        sleep(self.timeout)
+        if title:
+            self.log.debug(f'Trying to set "{title}" as title...')
+            title_field = self.driver.find_element_by_id(TEXTBOX)
+            title_field.click()
+            sleep(self.timeout)
 
-        title_field.clear()
-        sleep(self.timeout)
+            title_field.clear()
+            sleep(self.timeout)
 
-        title_field.send_keys(title)
-        sleep(self.timeout)
+            title_field.send_keys(title)
+            sleep(self.timeout)
 
         if description:
-            self.log.debug(f"Trying to set {description} as description...")
+            self.log.debug(f'Trying to set "{description}" as description...')
             container = self.driver.find_element_by_xpath(DESCRIPTION_CONTAINER)
             description_field = container.find_element_by_id(TEXTBOX)
             description_field.click()
@@ -65,17 +76,20 @@ class Upload:
             sleep(self.timeout)
 
             description_field.send_keys(description)
+            sleep(self.timeout)
 
-        self.log.debug("Trying to set video to 'Not made for kids'...")
+        if thumbnail:
+            path_thumbnail = str(Path.cwd() / thumbnail)
+            self.log.debug(f"Trying to set {path_thumbnail} as thumbnail...")
+            self.driver.find_element_by_xpath(INPUT_FILE_THUMBNAIL).send_keys(
+                path_thumbnail
+            )
+            sleep(self.timeout)
+
+        self.log.debug('Trying to set video to "Not made for kids"...')
         kids_section = self.driver.find_element_by_name(NOT_MADE_FOR_KIDS_LABEL)
         kids_section.find_element_by_id(RADIO_LABEL).click()
         sleep(self.timeout)
-        
-        if thumbnail:
-            self.log.debug("Trying to set video to thumbnail")
-            path_thumbnail = str(Path.cwd() / thumbnail)
-            self.driver.find_element_by_xpath(INPUT_FILE_THUMBNAIL).send_keys(path_thumbnail)
-            sleep(self.timeout)
 
         self.driver.find_element_by_id(NEXT_BUTTON).click()
         sleep(self.timeout)
