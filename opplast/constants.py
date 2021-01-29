@@ -1,7 +1,6 @@
 YOUTUBE_URL = "https://www.youtube.com"
 YOUTUBE_STUDIO_URL = "https://studio.youtube.com"
 YOUTUBE_UPLOAD_URL = "https://www.youtube.com/upload"
-TIMEOUT = 3
 
 DESCRIPTION_CONTAINER = "/html/body/ytcp-uploads-dialog/paper-dialog/div/ytcp-animatable[1]/ytcp-uploads-details/div/ytcp-uploads-basics/ytcp-mention-textbox[2]"
 MORE_OPTIONS_CONTAINER = "/html/body/ytcp-uploads-dialog/paper-dialog/div/ytcp-animatable[1]/ytcp-uploads-details/div/div/ytcp-button/div"
