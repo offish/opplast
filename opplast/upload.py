@@ -30,6 +30,7 @@ class Upload:
         video = meta.get("file")
         title = meta.get("title")
         description = meta.get("description")
+        thumbnail = meta.get("thumbnail")
 
         if not video:
             raise FileNotFoundError("Could not find 'file' in meta dictionary")
@@ -69,6 +70,12 @@ class Upload:
         kids_section = self.driver.find_element_by_name(NOT_MADE_FOR_KIDS_LABEL)
         kids_section.find_element_by_id(RADIO_LABEL).click()
         sleep(self.timeout)
+        
+        if thumbnail:
+            self.log.debug("Trying to set video to thumbnail")
+            path_thumbnail = str(Path.cwd() / thumbnail)
+            self.driver.find_element_by_xpath(INPUT_FILE_THUMBNAIL).send_keys(path_thumbnail)
+            sleep(self.timeout)
 
         self.driver.find_element_by_id(NEXT_BUTTON).click()
         sleep(self.timeout)
