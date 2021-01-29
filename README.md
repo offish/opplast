@@ -27,7 +27,7 @@ Download [geckodriver](https://github.com/mozilla/geckodriver/releases) and plac
 Open Firefox, and go to `about:profiles`. Click "Create a New profile" and name it "Selenium" or whatever. Copy the "Root Directory" path of the new profile. This is your `root_profile_directory`. Now you can "Launch profile in new browser", go to [YouTube](https://youtube.com), and login to the account you want to upload with.
 
 ```python
-Upload(root_profile_directory: str, timeout=TIMEOUT, headless=True, debug=True) -> None
+Upload(root_profile_directory: str, timeout=3, headless=True, debug=True) -> None
 ```
 `timeout: int` - seconds Selenium should wait, when getting pages and inserting data. Default: `3`.
 
@@ -53,6 +53,7 @@ was_uploaded, video_id = upload.upload(
         "file": "path/to/video.mp4",
         "title": "My YouTube Title",
         "description": "My YouTube Description",
+        "thumbnail": "path/to/thumbnail.jpg"
     }
 )
 
