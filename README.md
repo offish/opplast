@@ -18,7 +18,7 @@ Upload videos to YouTube using geckodriver, Firefox profiles and Selenium. Easy 
 Install and update using pip:
 
 ```
-pip install opplast
+pip install --upgrade opplast
 ```
 
 Download [geckodriver](https://github.com/mozilla/geckodriver/releases) and place it inside `C:\Users\USERNAME\AppData\Local\Programs\Python\Python37`. If you are using another version of Python, you place it inside there.  
@@ -27,8 +27,10 @@ Download [geckodriver](https://github.com/mozilla/geckodriver/releases) and plac
 Open Firefox, and go to `about:profiles`. Click "Create a New profile" and name it "Selenium" or whatever. Copy the "Root Directory" path of the new profile. This is your `root_profile_directory`. Now you can "Launch profile in new browser", go to [YouTube](https://youtube.com), and login to the account you want to upload with.
 
 ```python
-Upload(root_profile_directory: str, timeout=3, headless=True, debug=True) -> None
+Upload(root_profile_directory: str, timeout: int = 3, headless: bool = True, debug: bool = True) -> None
 ```
+`root_profile_directory: str` -  path to Firefox profile where you're logged into YouTube.
+
 `timeout: int` - seconds Selenium should wait, when getting pages and inserting data. Default: `3`.
 
 `headless: bool` - whether or not you want to see the GUI. Default: `True`.
