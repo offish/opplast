@@ -45,9 +45,6 @@ from opplast import Upload
 
 upload = Upload(
     "C:/Users/USERNAME/AppData/Roaming/Mozilla/Firefox/Profiles/random.selenium",
-    timeout=3,
-    headless=True,
-    debug=True,
 )
 
 was_uploaded, video_id = upload.upload(
