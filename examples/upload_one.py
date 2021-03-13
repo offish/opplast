@@ -11,6 +11,7 @@ was_uploaded, video_id = upload.upload(
         "title": "My YouTube Title",
         "description": "My YouTube Description",
         "thumbnail": "path/to/thumbnail.jpg",
+        "tags": ["these", "are", "my", "tags"],
     }
 )
 
