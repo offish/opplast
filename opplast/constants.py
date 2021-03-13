@@ -1,10 +1,10 @@
 YOUTUBE_URL = "https://www.youtube.com"
 YOUTUBE_STUDIO_URL = "https://studio.youtube.com"
 YOUTUBE_UPLOAD_URL = "https://www.youtube.com/upload"
-TIMEOUT = 3
+
 
 DESCRIPTION_CONTAINER = "/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-basics/div[2]/ytcp-mention-textbox/ytcp-form-input-container/div[1]/div[2]/ytcp-mention-input"
-MORE_OPTIONS_CONTAINER = "/html/body/ytcp-uploads-dialog/paper-dialog/div/ytcp-animatable[1]/ytcp-uploads-details/div/div/ytcp-button/div"
+MORE_OPTIONS_CONTAINER = "/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-uploads-details/div/div/ytcp-button"
 TEXTBOX = "textbox"
 TEXT_INPUT = "text-input"
 RADIO_LABEL = "radioLabel"
@@ -21,3 +21,4 @@ VIDEO_NOT_FOUND_ERROR = "Could not find video_id"
 DONE_BUTTON = "done-button"
 INPUT_FILE_VIDEO = "//input[@type='file']"
 INPUT_FILE_THUMBNAIL = "//input[@accept='image/jpeg,image/png']"
+TAGS_CONTAINER = "/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-uploads-details/div/ytcp-uploads-advanced/ytcp-form-input-container/div[1]"
