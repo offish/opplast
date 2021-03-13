@@ -43,7 +43,7 @@ class Upload:
         video = meta.get("file")
         title = meta.get("title")
         description = meta.get("description")
-        tags = set(meta.get("tags"))
+        tags = meta.get("tags")
         thumbnail = meta.get("thumbnail")
 
         if not video:
@@ -84,6 +84,7 @@ class Upload:
             sleep(self.timeout)
 
         if tags:
+            tags = set(tags)
             # Youtube doesn't accept more than 400 characters in the tags
             if len(','.join(str(x) for x in tags)) < 400:
                 self.log.debug(f'Trying to set "{tags}" as tags...')
