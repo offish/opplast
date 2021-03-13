@@ -2,7 +2,8 @@ YOUTUBE_URL = "https://www.youtube.com"
 YOUTUBE_STUDIO_URL = "https://studio.youtube.com"
 YOUTUBE_UPLOAD_URL = "https://www.youtube.com/upload"
 
-DESCRIPTION_CONTAINER = "/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-uploads-details/div/ytcp-uploads-basics/ytcp-mention-textbox[2]"
+
+DESCRIPTION_CONTAINER = "/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-basics/div[2]/ytcp-mention-textbox/ytcp-form-input-container/div[1]/div[2]/ytcp-mention-input"
 MORE_OPTIONS_CONTAINER = "/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-uploads-details/div/div/ytcp-button"
 TEXTBOX = "textbox"
 TEXT_INPUT = "text-input"
