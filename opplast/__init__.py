@@ -1,5 +1,5 @@
 __name__ = "opplast"
-__version__ = "1.0.4"
+__version__ = "1.0.5"
 
 from .constants import *
 from .upload import Upload
