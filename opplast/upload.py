@@ -70,8 +70,9 @@ class Upload:
                 sleep(self.timeout)
 
                 # clearing out title which defaults to filename
-                for i in range(30):
+                for i in range(len(title_field.text) + 10):
                     title_field.send_keys(Keys.BACKSPACE)
+                    sleep(0.1)
 
                 sleep(self.timeout)
                 title_field.send_keys(title)
