@@ -141,6 +141,14 @@ class Upload:
         modal.find_element_by_id(NEXT_BUTTON).click()
         sleep(self.timeout)
 
+        # sometimes you have 4 tabs instead of 3
+        # this handles both cases
+        try:
+            modal.find_element_by_id(NEXT_BUTTON).click()
+            sleep(self.timeout)
+        except:
+            pass
+
         self.log.debug("Trying to set video visibility to public...")
         public_main_button = modal.find_element_by_name(PUBLIC_BUTTON)
         public_main_button.find_element_by_id(RADIO_LABEL).click()
