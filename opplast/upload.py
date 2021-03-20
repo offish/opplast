@@ -55,12 +55,11 @@ class Upload:
         self.log.debug(f'Trying to upload "{video}" to YouTube...')
         path = str(Path.cwd() / video)
 
-
         self.driver.find_element_by_xpath(INPUT_FILE_VIDEO).send_keys(path)
         sleep(self.timeout)
 
         modal = self.driver.find_element_by_css_selector(UPLOAD_DIALOG_MODAL)
-        self.log.debug('Found YouTube upload Dialog Modal')
+        self.log.debug("Found YouTube upload Dialog Modal")
 
         if title:
             if len(title) <= 100:
@@ -103,9 +102,7 @@ class Upload:
         if thumbnail:
             path_thumbnail = str(Path.cwd() / thumbnail)
             self.log.debug(f'Trying to set "{path_thumbnail}" as thumbnail...')
-            modal.find_element_by_xpath(INPUT_FILE_THUMBNAIL).send_keys(
-                path_thumbnail
-            )
+            modal.find_element_by_xpath(INPUT_FILE_THUMBNAIL).send_keys(path_thumbnail)
             sleep(self.timeout)
 
         self.log.debug('Trying to set video to "Not made for kids"...')
