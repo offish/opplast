@@ -13,6 +13,7 @@ class Upload:
     def __init__(
         self,
         root_profile_directory: str,
+        executable_path: str,
         timeout: int = 3,
         headless: bool = True,
         debug: bool = True,
@@ -21,7 +22,7 @@ class Upload:
         options = webdriver.FirefoxOptions()
         options.headless = headless
 
-        self.driver = webdriver.Firefox(firefox_profile=profile, options=options)
+        self.driver = webdriver.Firefox(firefox_profile=profile, options=options, executable_path=executable_path)
         self.timeout = timeout
         self.log = Log(debug)
 
@@ -64,6 +65,7 @@ class Upload:
         if title:
             if len(title) <= 100:
                 self.log.debug(f'Trying to set "{title}" as title...')
+                sleep(self.timeout)
                 title_field = modal.find_element_by_id(TEXTBOX)
                 title_field.click()
                 sleep(self.timeout)
@@ -118,8 +120,8 @@ class Upload:
 
             if len(tags) <= 500:
                 self.log.debug(f'Trying to set "{tags}" as tags...')
-                container = modal.find_element_by_xpath(TAGS_CONTAINER)
-                tags_field = container.find_element_by_id(TEXT_INPUT)
+                # container = modal.find_element_by_xpath(TAGS_CONTAINER)
+                tags_field = container.find_element_by_xpath(TAGS_CONTAINER)
                 tags_field.click()
                 sleep(self.timeout)
 

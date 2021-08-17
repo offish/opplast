@@ -2,7 +2,11 @@ from opplast import Upload
 
 
 upload = Upload(
-    "C:/Users/USERNAME/AppData/Roaming/Mozilla/Firefox/Profiles/random.selenium",
+    # like Users/truelove/Library/Application Support/Firefox/Profiles/4oqb2upm.xxd
+    root_profile_directory="you root profile directory file",
+    headless= False,
+    # if you download in this folder like ./geckodriver
+    executable_path='./geckodriver'
 )
 
 was_uploaded, video_id = upload.upload(
