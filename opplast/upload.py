@@ -2,60 +2,59 @@ from .constants import *
 from .logging import Log
 
 from pathlib import Path
-from time import sleep
 from typing import Tuple, Optional
+from time import sleep
 
-from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium import webdriver
+
+
+def get_path(file_path: str) -> str:
+    # no clue why, but this character gets added for me when running
+    return str(Path(file_path)).replace("\u202a", "")
 
 
 class Upload:
     def __init__(
         self,
         root_profile_directory: str,
+        executable_path: str = "geckodriver",
         timeout: int = 3,
         headless: bool = True,
         debug: bool = True,
     ) -> None:
-        profile = webdriver.FirefoxProfile(root_profile_directory.replace("\\", "/"))
+        profile = webdriver.FirefoxProfile(root_profile_directory)
         options = webdriver.FirefoxOptions()
         options.headless = headless
 
-        self.driver = webdriver.Firefox(firefox_profile=profile, options=options)
+        self.driver = webdriver.Firefox(
+            firefox_profile=profile, options=options, executable_path=executable_path
+        )
         self.timeout = timeout
         self.log = Log(debug)
 
         self.log.debug("Firefox is now running")
 
-    def upload(self, meta: dict) -> Tuple[bool, Optional[str]]:
+    def upload(
+        self,
+        file: str,
+        title: str = "",
+        description: str = "",
+        thumbnail: str = "",
+        tags: list = [],
+    ) -> Tuple[bool, Optional[str]]:
         """Uploads a video to YouTube.
-
-        meta: {
-            "file": "path/to/video.mp4",
-            "title": "my title",
-            "description": "my description",
-            "thumbnail": "path/to/thumbnail.jpg",
-            "tags": ["these", "are", "my", "tags"]
-        }
-
         Returns if the video was uploaded and the video id.
         """
-        video = meta.get("file")
-        title = meta.get("title")
-        description = meta.get("description")
-        thumbnail = meta.get("thumbnail")
-        tags = meta.get("tags")
-
-        if not video:
-            raise FileNotFoundError('Could not find "file" in meta')
+        if not file:
+            raise FileNotFoundError(f'Could not find file with path: "{file}"')
 
         self.driver.get(YOUTUBE_UPLOAD_URL)
         sleep(self.timeout)
 
-        self.log.debug(f'Trying to upload "{video}" to YouTube...')
-        path = str(Path.cwd() / video)
+        self.log.debug(f'Trying to upload "{file}" to YouTube...')
 
-        self.driver.find_element_by_xpath(INPUT_FILE_VIDEO).send_keys(path)
+        self.driver.find_element_by_xpath(INPUT_FILE_VIDEO).send_keys(get_path(file))
         sleep(self.timeout)
 
         modal = self.driver.find_element_by_css_selector(UPLOAD_DIALOG_MODAL)
@@ -100,9 +99,10 @@ class Upload:
                 )
 
         if thumbnail:
-            path_thumbnail = str(Path.cwd() / thumbnail)
-            self.log.debug(f'Trying to set "{path_thumbnail}" as thumbnail...')
-            modal.find_element_by_xpath(INPUT_FILE_THUMBNAIL).send_keys(path_thumbnail)
+            self.log.debug(f'Trying to set "{thumbnail}" as thumbnail...')
+            modal.find_element_by_xpath(INPUT_FILE_THUMBNAIL).send_keys(
+                get_path(thumbnail)
+            )
             sleep(self.timeout)
 
         self.log.debug('Trying to set video to "Not made for kids"...')
