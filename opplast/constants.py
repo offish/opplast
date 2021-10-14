@@ -11,6 +11,11 @@ VIDEO_URL_CONTAINER = "//span[@class='video-url-fadeable style-scope ytcp-video-
 DESCRIPTION_CONTAINER = "/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-basics/div[2]/ytcp-mention-textbox/ytcp-form-input-container/div[1]/div[2]/ytcp-mention-input"
 MORE_OPTIONS_CONTAINER = "/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-video-metadata-editor/div/div/ytcp-button"
 
+# COUNTERS
+TAGS_COUNTER = 500
+TITLE_COUNTER = 100
+DESCRIPTION_COUNTER = 5000
+
 # OTHER
 HREF = "href"
 TEXTBOX = "textbox"
