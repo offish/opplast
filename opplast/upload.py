@@ -1,5 +1,6 @@
 from .constants import *
 from .logging import Log
+from .exceptions import *
 
 from pathlib import Path
 from typing import Tuple, Optional
@@ -35,6 +36,24 @@ class Upload:
 
         self.log.debug("Firefox is now running")
 
+    def click(self, element):
+        element.click()
+        sleep(self.timeout)
+        return element
+
+    def send(self, element, text: str) -> None:
+        element.clear()
+        sleep(self.timeout)
+        element.send_keys(text)
+        sleep(self.timeout)
+
+    def click_next(self, modal) -> None:
+        modal.find_element_by_id(NEXT_BUTTON).click()
+        sleep(self.timeout)
+
+    def not_uploaded(self, modal) -> bool:
+        return modal.find_element_by_xpath(STATUS_CONTAINER).text.find(UPLOADED) != -1
+
     def upload(
         self,
         file: str,
@@ -60,43 +79,38 @@ class Upload:
         modal = self.driver.find_element_by_css_selector(UPLOAD_DIALOG_MODAL)
         self.log.debug("Found YouTube upload Dialog Modal")
 
-        if title:
-            if len(title) <= 100:
-                self.log.debug(f'Trying to set "{title}" as title...')
-                title_field = modal.find_element_by_id(TEXTBOX)
-                title_field.click()
-                sleep(self.timeout)
+        self.log.debug(f'Trying to set "{title}" as title...')
 
-                # clearing out title which defaults to filename
-                for i in range(len(title_field.text) + 10):
-                    title_field.send_keys(Keys.BACKSPACE)
-                    sleep(0.1)
+        # TITLE
+        title_field = self.click(modal.find_element_by_id(TEXTBOX))
 
-                sleep(self.timeout)
-                title_field.send_keys(title)
-                sleep(self.timeout)
-            else:
-                self.log.debug(
-                    "Did not set title. Title cannot be longer than 100 characters"
-                )
+        # get file name (default) title
+        title = title if title else title_field.text
+
+        if len(title) > TITLE_COUNTER:
+            raise ExceedsCharactersAllowed(
+                f"Title was not set due to exceeding the maximum allowed characters ({len(title)}/{TITLE_COUNTER})"
+            )
+
+        # clearing out title which defaults to filename
+        for i in range(len(title_field.text) + 10):
+            # more backspaces than needed just to be sure
+            title_field.send_keys(Keys.BACKSPACE)
+            sleep(0.1)
+
+        self.send(title_field, title)
 
         if description:
-            if len(description) <= 5000:
-                self.log.debug(f'Trying to set "{description}" as description...')
-                container = modal.find_element_by_xpath(DESCRIPTION_CONTAINER)
-                description_field = container.find_element_by_id(TEXTBOX)
-                description_field.click()
-                sleep(self.timeout)
-
-                description_field.clear()
-                sleep(self.timeout)
-
-                description_field.send_keys(description)
-                sleep(self.timeout)
-            else:
-                self.log.debug(
-                    "Did not set description. Description cannot be longer than 5000 characters"
+            if len(description) > DESCRIPTION_COUNTER:
+                raise ExceedsCharactersAllowed(
+                    f"Description was not set due to exceeding the maximum allowed characters ({len(description)}/{DESCRIPTION_COUNTER})"
                 )
+
+            self.log.debug(f'Trying to set "{description}" as description...')
+            container = modal.find_element_by_xpath(DESCRIPTION_CONTAINER)
+            description_field = self.click(container.find_element_by_id(TEXTBOX))
+
+            self.send(description_field, description)
 
         if thumbnail:
             self.log.debug(f'Trying to set "{thumbnail}" as thumbnail...')
@@ -111,55 +125,36 @@ class Upload:
         sleep(self.timeout)
 
         if tags:
-            modal.find_element_by_xpath(MORE_OPTIONS_CONTAINER).click()
-            sleep(self.timeout)
+            self.click(modal.find_element_by_xpath(MORE_OPTIONS_CONTAINER))
 
             tags = ",".join(str(tag) for tag in tags)
 
-            if len(tags) <= 500:
-                self.log.debug(f'Trying to set "{tags}" as tags...')
-                container = modal.find_element_by_xpath(TAGS_CONTAINER)
-                tags_field = container.find_element_by_id(TEXT_INPUT)
-                tags_field.click()
-                sleep(self.timeout)
-
-                tags_field.clear()
-                sleep(self.timeout)
-
-                tags_field.send_keys(tags)
-                sleep(self.timeout)
-            else:
-                self.log.debug(
-                    "Did not set tags. Tags cannot be longer than 500 characters"
+            if len(tags) > TAGS_COUNTER:
+                raise ExceedsCharactersAllowed(
+                    f"Tags were not set due to exceeding the maximum allowed characters ({len(tags)}/{TAGS_COUNTER})"
                 )
 
-        modal.find_element_by_id(NEXT_BUTTON).click()
-        sleep(self.timeout)
-
-        modal.find_element_by_id(NEXT_BUTTON).click()
-        sleep(self.timeout)
+            self.log.debug(f'Trying to set "{tags}" as tags...')
+            container = modal.find_element_by_xpath(TAGS_CONTAINER)
+            tags_field = self.click(container.find_element_by_id(TEXT_INPUT))
+            self.send(tags_field, tags)
 
         # sometimes you have 4 tabs instead of 3
         # this handles both cases
-        try:
-            modal.find_element_by_id(NEXT_BUTTON).click()
-            sleep(self.timeout)
-        except:
-            pass
+        for _ in range(3):
+            try:
+                self.click_next(modal)
+            except:
+                pass
 
         self.log.debug("Trying to set video visibility to public...")
         public_main_button = modal.find_element_by_name(PUBLIC_BUTTON)
         public_main_button.find_element_by_id(RADIO_LABEL).click()
         video_id = self.get_video_id(modal)
 
-        status_container = modal.find_element_by_xpath(STATUS_CONTAINER)
-
-        while True:
-            in_process = status_container.text.find(UPLOADED) != -1
-            if in_process:
-                sleep(self.timeout)
-            else:
-                break
+        while self.not_uploaded(modal):
+            self.log.debug("Still uploading...")
+            sleep(1)
 
         done_button = modal.find_element_by_id(DONE_BUTTON)
 
@@ -167,8 +162,7 @@ class Upload:
             error_message = self.driver.find_element_by_xpath(ERROR_CONTAINER).text
             return False, None
 
-        done_button.click()
-        sleep(self.timeout)
+        self.click(done_button)
 
         return True, video_id
 
@@ -182,8 +176,7 @@ class Upload:
 
             video_id = video_url_element.get_attribute(HREF).split("/")[-1]
         except:
-            self.log.debug("Exception getting video ID")
-            pass
+            raise VideoIDError("Could not get video ID")
 
         return video_id
 
