@@ -64,6 +64,7 @@ class Upload:
         description: str = "",
         thumbnail: str = "",
         tags: list = [],
+        only_upload: bool = False,
     ) -> Tuple[bool, Optional[str]]:
         """Uploads a video to YouTube.
         Returns if the video was uploaded and the video id.
@@ -81,6 +82,15 @@ class Upload:
 
         modal = self.driver.find_element_by_css_selector(UPLOAD_DIALOG_MODAL)
         self.log.debug("Found YouTube upload Dialog Modal")
+
+        if only_upload:
+            video_id = self.get_video_id(modal)
+
+            while self.not_uploaded(modal):
+                self.log.debug("Still uploading...")
+                sleep(1)
+
+            return True, video_id
 
         self.log.debug(f'Trying to set "{title}" as title...')
 
