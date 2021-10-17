@@ -88,7 +88,7 @@ class Upload:
 
             while self.not_uploaded(modal):
                 self.log.debug("Still uploading...")
-                sleep(1)
+                sleep(self.timeout)
 
             return True, video_id
 
