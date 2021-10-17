@@ -3,11 +3,12 @@ from .logging import Log
 from .exceptions import *
 
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union
 from time import sleep
 
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
+from selenium.webdriver import FirefoxOptions, FirefoxProfile
 
 
 def get_path(file_path: str) -> str:
@@ -18,14 +19,16 @@ def get_path(file_path: str) -> str:
 class Upload:
     def __init__(
         self,
-        root_profile_directory: str,
+        profile: Union[str, FirefoxProfile],
         executable_path: str = "geckodriver",
         timeout: int = 3,
         headless: bool = True,
         debug: bool = True,
+        options: FirefoxOptions = webdriver.FirefoxOptions(),
     ) -> None:
-        profile = webdriver.FirefoxProfile(root_profile_directory)
-        options = webdriver.FirefoxOptions()
+        if isinstance(profile, str):
+            profile = webdriver.FirefoxProfile(profile)
+
         options.headless = headless
 
         self.driver = webdriver.Firefox(
@@ -93,7 +96,7 @@ class Upload:
             )
 
         # clearing out title which defaults to filename
-        for i in range(len(title_field.text) + 10):
+        for _ in range(len(title_field.text) + 10):
             # more backspaces than needed just to be sure
             title_field.send_keys(Keys.BACKSPACE)
             sleep(0.1)
@@ -159,7 +162,7 @@ class Upload:
         done_button = modal.find_element_by_id(DONE_BUTTON)
 
         if done_button.get_attribute("aria-disabled") == "true":
-            error_message = self.driver.find_element_by_xpath(ERROR_CONTAINER).text
+            self.driver.find_element_by_xpath(ERROR_CONTAINER).text
             return False, None
 
         self.click(done_button)
