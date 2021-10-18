@@ -1,5 +1,5 @@
 __name__ = "opplast"
-__version__ = "1.0.9"
+__version__ = "1.0.10"
 
 from .exceptions import *
 from .constants import *
