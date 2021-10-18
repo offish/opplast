@@ -65,7 +65,7 @@ class Upload:
         thumbnail: str = "",
         tags: list = [],
         only_upload: bool = False,
-    ) -> Tuple[bool, Optional[str]]:
+    ) -> Tuple[bool, str]:
         """Uploads a video to YouTube.
         Returns if the video was uploaded and the video id.
         """
@@ -172,8 +172,8 @@ class Upload:
         done_button = modal.find_element_by_id(DONE_BUTTON)
 
         if done_button.get_attribute("aria-disabled") == "true":
-            self.driver.find_element_by_xpath(ERROR_CONTAINER).text
-            return False, None
+            error_message = self.driver.find_element_by_xpath(ERROR_CONTAINER).text
+            return False, error_message
 
         self.click(done_button)
 
