@@ -1,1 +1,6 @@
 .venv
+test.py
+*.log
+opplast/__pycache__
+dist/
+*.egg-info

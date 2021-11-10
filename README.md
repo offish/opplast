@@ -34,7 +34,7 @@ Open Firefox, and go to `about:profiles`. Click "Create a New profile" and name 
 It's highly recommended that you clear your standard upload settings on YouTube.
 
 ```python
-Upload(root_profile_directory: str, executable_path: str = "geckodriver", timeout: int = 3, headless: bool = True, debug: bool = True) -> None
+Upload(root_profile_directory: str, executable_path: str = "geckodriver", timeout: int = 3, headless: bool = True, debug: bool = True, options: FirefoxOptions = webdriver.FirefoxOptions()) -> None
 ```
 `root_profile_directory: str` -  path to Firefox profile where you're logged into YouTube.
 
@@ -42,9 +42,11 @@ Upload(root_profile_directory: str, executable_path: str = "geckodriver", timeou
 
 `timeout: int` - seconds Selenium should wait, when getting pages and inserting data. Default: `3`.
 
-`headless: bool` - whether or not you want to see the browser GUI. Default: `True` (hidden).
+`headless: bool` - whether or not you want to see the browser GUI. **Will override headless option if specified in `options`.** Default: `True` (hidden).
 
 `debug: bool` - whether or not you want to see the debug info. Default: `True` (shown).
+
+`options: FirefoxOptions` - optional options for webdriver. Use `headless` if you want to hide browser.
 
 
 ## Usage
@@ -63,6 +65,8 @@ was_uploaded, video_id = upload.upload(
     description="My YouTube Description",
     thumbnail=r"C:/path/to/thumbnail.jpg",
     tags=["these", "are", "my", "tags"],
+    only_upload=False # If True will not set title, description or anything else. 
+    # Might be useful if you want to do it manually or by using the YouTube API.
 )
 
 if was_uploaded:
