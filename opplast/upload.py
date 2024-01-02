@@ -1,38 +1,39 @@
-from .constants import *
-from .logging import Log
-from .exceptions import *
+from selenium.webdriver.common.keys import Keys
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.common.by import By
 
 from pathlib import Path
 from typing import Tuple, Optional, Union
 from time import sleep
 
-from selenium.webdriver.common.keys import Keys
-from selenium import webdriver
-from selenium.webdriver import FirefoxOptions, FirefoxProfile
-
+from .constants import *
+from .logging import Log
+from .exceptions import *
 
 def get_path(file_path: str) -> str:
     # no clue why, but this character gets added for me when running
     return str(Path(file_path)).replace("\u202a", "")
 
-
 class Upload:
     def __init__(
         self,
-        profile: Union[str, FirefoxProfile],
+        profile: Union[str, webdriver.FirefoxProfile],
         executable_path: str = "geckodriver",
         timeout: int = 3,
         headless: bool = True,
         debug: bool = True,
-        options: FirefoxOptions = webdriver.FirefoxOptions(),
+        options: FirefoxOptions = FirefoxOptions(),
     ) -> None:
         if isinstance(profile, str):
             profile = webdriver.FirefoxProfile(profile)
 
         options.headless = headless
 
+        service = FirefoxService(executable_path=executable_path)
         self.driver = webdriver.Firefox(
-            firefox_profile=profile, options=options, executable_path=executable_path
+            service=service, firefox_profile=profile, options=options
         )
         self.timeout = timeout
         self.log = Log(debug)
@@ -51,11 +52,11 @@ class Upload:
         sleep(self.timeout)
 
     def click_next(self, modal) -> None:
-        modal.find_element_by_id(NEXT_BUTTON).click()
+        modal.find_element(By.ID, NEXT_BUTTON).click()
         sleep(self.timeout)
 
     def not_uploaded(self, modal) -> bool:
-        return modal.find_element_by_xpath(STATUS_CONTAINER).text.find(UPLOADED) != -1
+        return modal.find_element(By.XPATH, STATUS_CONTAINER).text.find(UPLOADED) != -1
 
     def upload(
         self,
@@ -77,10 +78,10 @@ class Upload:
 
         self.log.debug(f'Trying to upload "{file}" to YouTube...')
 
-        self.driver.find_element_by_xpath(INPUT_FILE_VIDEO).send_keys(get_path(file))
+        self.driver.find_element(By.XPATH, INPUT_FILE_VIDEO).send_keys(get_path(file))
         sleep(self.timeout)
 
-        modal = self.driver.find_element_by_css_selector(UPLOAD_DIALOG_MODAL)
+        modal = self.driver.find_element(By.CSS_SELECTOR, UPLOAD_DIALOG_MODAL)
         self.log.debug("Found YouTube upload Dialog Modal")
 
         if only_upload:
@@ -95,7 +96,7 @@ class Upload:
         self.log.debug(f'Trying to set "{title}" as title...')
 
         # TITLE
-        title_field = self.click(modal.find_element_by_id(TEXTBOX))
+        title_field = self.click(modal.find_element(By.ID, TEXTBOX))
 
         # get file name (default) title
         title = title if title else title_field.text
@@ -120,25 +121,25 @@ class Upload:
                 )
 
             self.log.debug(f'Trying to set "{description}" as description...')
-            container = modal.find_element_by_xpath(DESCRIPTION_CONTAINER)
-            description_field = self.click(container.find_element_by_id(TEXTBOX))
+            container = modal.find_element(By.XPATH, DESCRIPTION_CONTAINER)
+            description_field = self.click(container.find_element(By.ID, TEXTBOX))
 
             self.send(description_field, description)
 
         if thumbnail:
             self.log.debug(f'Trying to set "{thumbnail}" as thumbnail...')
-            modal.find_element_by_xpath(INPUT_FILE_THUMBNAIL).send_keys(
+            modal.find_element(By.XPATH, INPUT_FILE_THUMBNAIL).send_keys(
                 get_path(thumbnail)
             )
             sleep(self.timeout)
 
         self.log.debug('Trying to set video to "Not made for kids"...')
-        kids_section = modal.find_element_by_name(NOT_MADE_FOR_KIDS_LABEL)
-        kids_section.find_element_by_id(RADIO_LABEL).click()
+        kids_section = modal.find_element(By.NAME, NOT_MADE_FOR_KIDS_LABEL)
+        kids_section.find_element(By.ID, RADIO_LABEL).click()
         sleep(self.timeout)
 
         if tags:
-            self.click(modal.find_element_by_xpath(MORE_OPTIONS_CONTAINER))
+            self.click(modal.find_element(By.XPATH, MORE_OPTIONS_CONTAINER))
 
             tags = ",".join(str(tag) for tag in tags)
 
@@ -148,8 +149,8 @@ class Upload:
                 )
 
             self.log.debug(f'Trying to set "{tags}" as tags...')
-            container = modal.find_element_by_xpath(TAGS_CONTAINER)
-            tags_field = self.click(container.find_element_by_id(TEXT_INPUT))
+            container = modal.find_element(By.XPATH, TAGS_CONTAINER)
+            tags_field = self.click(container.find_element(By.ID, TEXT_INPUT))
             self.send(tags_field, tags)
 
         # sometimes you have 4 tabs instead of 3
@@ -161,18 +162,18 @@ class Upload:
                 pass
 
         self.log.debug("Trying to set video visibility to public...")
-        public_main_button = modal.find_element_by_name(PUBLIC_BUTTON)
-        public_main_button.find_element_by_id(RADIO_LABEL).click()
+        public_main_button = modal.find_element(By.NAME, PUBLIC_BUTTON)
+        public_main_button.find_element(By.ID, RADIO_LABEL).click()
         video_id = self.get_video_id(modal)
 
         while self.not_uploaded(modal):
             self.log.debug("Still uploading...")
             sleep(1)
 
-        done_button = modal.find_element_by_id(DONE_BUTTON)
+        done_button = modal.find_element(By.ID, DONE_BUTTON)
 
         if done_button.get_attribute("aria-disabled") == "true":
-            self.log.debug(self.driver.find_element_by_xpath(ERROR_CONTAINER).text)
+            self.log.debug(self.driver.find_element(By.XPATH, ERROR_CONTAINER).text)
             return False, None
 
         self.click(done_button)
@@ -182,10 +183,8 @@ class Upload:
     def get_video_id(self, modal) -> Optional[str]:
         video_id = None
         try:
-            video_url_container = modal.find_element_by_xpath(VIDEO_URL_CONTAINER)
-            video_url_element = video_url_container.find_element_by_xpath(
-                VIDEO_URL_ELEMENT
-            )
+            video_url_container = modal.find_element(By.XPATH, VIDEO_URL_CONTAINER)
+            video_url_element = video_url_container.find_element(By.XPATH, VIDEO_URL_ELEMENT)
 
             video_id = video_url_element.get_attribute(HREF).split("/")[-1]
         except:
